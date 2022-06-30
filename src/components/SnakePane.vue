@@ -43,6 +43,7 @@ const restartGame = () => {
     [1, 2],
     [1, 3],
   ];
+  direction.value = "right";
   startGame();
 };
 
@@ -62,7 +63,7 @@ const isPartOfSnake = (x, y) => {
 const gameOver = () => {};
 
 const isOutOfBounds = (x, y) => {
-  return x < 0 || x > 9 || y < 0 || y > 9;
+  return x < 1 || x > 10 || y < 1 || y > 10;
 };
 
 const moveSnake = () => {

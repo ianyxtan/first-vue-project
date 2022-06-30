@@ -1,7 +1,9 @@
 <template>
   <div class="flex flex-col items-center">
-    <div v-for="x in 10" :key="x" class="flex flex-row">
-      <Cell v-for="y in 10" :key="y" :isPartOfSnake="isPartOfSnake(x, y)" />
+    <div class="border border-black">
+      <div v-for="x in 10" :key="x" class="flex flex-row">
+        <Cell v-for="y in 10" :key="y" :isPartOfSnake="isPartOfSnake(x, y)" />
+      </div>
     </div>
   </div>
 </template>

@@ -14,8 +14,16 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {ref} from "vue";
 import Cell from "./Cell.vue";
+import _ from "lodash";
+
+const snakeInitialPosition = [
+  // x, y
+  [1, 1],
+  [1, 2],
+  [1, 3],
+]
 
 const direction = ref("right");
 const gameInterval = ref(null);
@@ -36,21 +44,13 @@ window.addEventListener("keydown", (e) => {
   }
 });
 
-const snakePosition = ref([
-  // x, y
-  [1, 1],
-  [1, 2],
-  [1, 3],
-]);
+// deep copy the snakeInitialPosition array, not referencing it
+const snakePosition = ref(_.cloneDeep(snakeInitialPosition));
 
 const restartGame = () => {
   clearInterval(gameInterval.value);
   gameInterval.value = null;
-  snakePosition.value = [
-    [1, 1],
-    [1, 2],
-    [1, 3],
-  ];
+  snakePosition.value = _.cloneDeep(snakeInitialPosition);
   direction.value = "right";
   startGame();
 };

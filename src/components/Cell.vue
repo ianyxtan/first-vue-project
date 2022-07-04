@@ -1,7 +1,18 @@
 <template>
-  <span :class="isPartOfSnake ? 'w-6 h-6 bg-black' : 'w-6 h-6 bg-transparent'">
-  </span>
+  <span class="w-6 h-6" :class="bgColor"> </span>
 </template>
 <script setup>
-const props = defineProps(["isPartOfSnake"]);
+import { computed } from "@vue/runtime-core";
+
+const props = defineProps(["isPartOfSnake", "isApple"]);
+
+const bgColor = computed(() => {
+  if (props.isPartOfSnake) {
+    return "bg-black";
+  } else if (props.isApple) {
+    return "bg-red-600";
+  } else {
+    return "bg-transparent";
+  }
+});
 </script>

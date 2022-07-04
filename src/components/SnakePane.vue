@@ -2,27 +2,34 @@
   <div class="flex flex-col items-center">
     <div class="border border-black">
       <div v-for="x in 10" :key="x" class="flex flex-row">
-        <Cell v-for="y in 10" :key="y" :isPartOfSnake="isPartOfSnake(x, y)" />
+        <Cell
+            v-for="y in 10"
+            :key="y"
+            :is-part-of-snake="isPartOfSnake(x, y)"
+            :is-apple="isApple(x, y)"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import {computed, onMounted, ref} from "vue";
 import Cell from "./Cell.vue";
 
 const direction = ref("right");
 const gameInterval = ref(null);
+const applePosition = ref(null);
+let snakeSpeed = ref(300)
 
 window.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft") {
+  if (e.key === "ArrowLeft" && direction.value !== "right") {
     direction.value = "left";
-  } else if (e.key === "ArrowRight") {
+  } else if (e.key === "ArrowRight" && direction.value !== "left") {
     direction.value = "right";
-  } else if (e.key === "ArrowUp") {
+  } else if (e.key === "ArrowUp" && direction.value !== "down") {
     direction.value = "up";
-  } else if (e.key === "ArrowDown") {
+  } else if (e.key === "ArrowDown" && direction.value !== "up") {
     direction.value = "down";
   } else if (e.key === "Escape") {
     restartGame();
@@ -40,7 +47,6 @@ const restartGame = () => {
   clearInterval(gameInterval.value);
   gameInterval.value = null;
   snakePosition.value = [
-    // x, y
     [1, 1],
     [1, 2],
     [1, 3],
@@ -50,7 +56,8 @@ const restartGame = () => {
 };
 
 const startGame = () => {
-  gameInterval.value = setInterval(moveSnake, 300);
+  generateApple();
+  gameInterval.value = setInterval(moveSnake, snakeSpeed.value);
 };
 
 const isPartOfSnake = (x, y) => {
@@ -62,7 +69,32 @@ const isPartOfSnake = (x, y) => {
   return false;
 };
 
-const gameOver = () => {};
+const isPartOfSnakeBody = (x, y) => {
+  let snakeBodyParts = [...snakePosition.value];
+  snakeBodyParts.pop();
+
+  for (let position of snakeBodyParts) {
+    if (position[0] === x && position[1] === y) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+const isApple = (x, y) => {
+  return applePosition.value[0] === x && applePosition.value[1] === y;
+};
+
+const generateApple = () => {
+  let x = Math.floor(Math.random() * 10 + 1);
+  let y = Math.floor(Math.random() * 10 + 1);
+  while (isPartOfSnake(x, y)) {
+    y = Math.floor(Math.random() * 10 + 1);
+    x = Math.floor(Math.random() * 10 + 1);
+  }
+  applePosition.value = [x, y];
+};
 
 const isOutOfBounds = (x, y) => {
   return x < 1 || x > 10 || y < 1 || y > 10;
@@ -75,6 +107,7 @@ const moveSnake = () => {
 
   // remember previous position
   let previousPosition = [...snakeHead];
+  let isAppleEaten = false
 
   // move the snake head
   switch (direction.value) {
@@ -96,6 +129,19 @@ const moveSnake = () => {
     return restartGame();
   }
 
+  // eats apple
+  if (isApple(snakeHead[0], snakeHead[1])) {
+    // add points
+    isAppleEaten = true
+  }
+
+  // if new head eats snake body
+  if (isPartOfSnakeBody(...snakeHead)) {
+    console.log("body part eaten!")
+
+    return restartGame();
+  }
+
   // move body
   for (let i = snakePosition.value.length - 2; i >= 0; i--) {
     let bodyBodyPartOld = [...snakePosition.value[i]];
@@ -103,9 +149,19 @@ const moveSnake = () => {
 
     previousPosition = [...bodyBodyPartOld];
   }
+
+  if (isAppleEaten) {
+    // generate new apple
+    generateApple();
+
+    // make snake longer
+    snakePosition.value.unshift(previousPosition);
+  }
+
 };
 
 startGame();
+
 </script>
 
 <style scoped>
